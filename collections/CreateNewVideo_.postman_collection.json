@@ -1,0 +1,479 @@
+{
+	"info": {
+		"_postman_id": "8dbfda6d-a818-4a39-85ca-07cce2540851",
+		"name": "CreateNewVideo_",
+		"description": "Env https://dev.eocommunicate.com/video",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1686376"
+	},
+	"item": [
+		{
+			"name": "tests",
+			"item": [
+				{
+					"name": "GET AuthTokenUsingClientCredentials",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log('I am executing after the response');\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"GET and SAVE auth token\", function(){\r",
+									"    let body = pm.response.text();\r",
+									"    body = body.replace(body.charAt(0), '');\r",
+									"    body = body.replace(`\\n`, '');\r",
+									"    body = body.replace(body.charAt(body.length - 1), '');\r",
+									"    pm.environment.set(\"access_token\", body);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "pb-customer-id",
+								"value": "{{pb-customer-id}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "secret",
+								"value": "secret",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n      \"client_id\": \"sa340c2.jlP9Y7VEfQTaUXoz@communicate.engageone.co\",\r\n      \"secret\": \"KmurEJtGBFK8vPE5\",\r\n      \"customer_id\": \"sa340c2\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://usersapi.qa.eocommunicate.com/authenticate",
+							"protocol": "https",
+							"host": [
+								"usersapi",
+								"qa",
+								"eocommunicate",
+								"com"
+							],
+							"path": [
+								"authenticate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST create new video",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log('I am executing after the response');\r",
+									"\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"There is no response body\", function () {\r",
+									"    var res = (_.isEmpty(responseBody));\r",
+									"    pm.expect(res).to.be.false;\r",
+									"    pm.expect(pm.response.text()).to.contain('\"\"');\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"//set a env variable\r",
+									"pm.environment.set(\"communicationName\", \"video3\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "pb-customer-id",
+								"value": "{{pb-customer-id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"projectName\": \"ProjectApi\", \r\n    \"communicationName\": \"video3\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/data/project",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"data",
+								"project"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Gets the Video channel communication with it's properties and load",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log('I am executing after the response');\r",
+									"\r",
+									"pm.test(\"Check status code\", function(){\r",
+									"pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Expected Project ID is present\", function(){\r",
+									"pm.expect(pm.response.text()).to.contain(\"_id\");\r",
+									"pm.environment.set(\"projectId\", pm.response.json()._id);\r",
+									"pm.expect(pm.response.json().projectName).to.contain(pm.environment.get(\"ProjectName\"));\r",
+									"pm.expect(pm.response.json().communicationName).to.contain(pm.environment.get(\"communicationName\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"console.log('I am executing before the request');\r",
+									"\r",
+									"//set a env variable\r",
+									"pm.environment.set(\"ProjectName\", \"ProjectApi\");\r",
+									"//pm.environment.set(\"communicationName\", \"VideoTest\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "pb-customer-id",
+								"value": "{{pb-customer-id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{api}}/data/project/{{ProjectName}}/communication/{{communicationName}}",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"data",
+								"project",
+								"{{ProjectName}}",
+								"communication",
+								"{{communicationName}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT save video",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"console.log('I am executing before the request');\r",
+									"\r",
+									"pm.test(\"Edit json file\", function(){\r",
+									"    let j = pm.environment.get(\"json\");\r",
+									"    j = j.replace('_id_', pm.environment.get(\"projectId\"));\r",
+									"    pm.environment.set(\"json\", j);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log('I am executing after the response');\r",
+									"\r",
+									"pm.test(\"Check status code\", function(){\r",
+									"pm.expect(pm.response.code).to.equal(200);\r",
+									"pm.expect(pm.response.text()).to.contain(\"success\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "pb-customer-id",
+								"value": "{{pb-customer-id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{json}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/data/project/{{projectId}}",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"data",
+								"project",
+								"{{projectId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST duplicate video",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log('I am executing after the response');\r",
+									"\r",
+									"pm.test(\"Check status code\", function(){\r",
+									"pm.expect(pm.response.code).to.equal(200);\r",
+									"pm.expect(pm.response.text()).to.contain(\"success\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"NewVideo\", \"Video3Copy\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "pb-customer-id",
+								"value": "{{pb-customer-id}}",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"communicationName\": \"video3\",\r\n  \"newProjectName\": \"Video3Copy\",\r\n  \"projectName\": \"ProjectApi\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api}}/data/duplicate",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"data",
+								"duplicate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE video",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log('I am executing after the response');\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(pm.response.text()).to.contain(\"success\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "pb-customer-id",
+								"value": "{{pb-customer-id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{api}}/data/projects/{{ProjectName}}/communications/{{NewVideo}}",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"data",
+								"projects",
+								"{{ProjectName}}",
+								"communications",
+								"{{NewVideo}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
